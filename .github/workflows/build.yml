@@ -2,7 +2,7 @@ name: Build Tiny FTP
 
 on:
   push:
-    branches: [main]
+    branches: [main, "codex/**"]
   workflow_dispatch:
 
 permissions:
@@ -25,9 +25,9 @@ jobs:
       - name: Package application
         working-directory: source/TinyFTP
         run: ditto -c -k --sequesterRsrc --keepParent "dist/Tiny FTP.app" dist/TinyFTP-macOS-arm64.zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
-          name: TinyFTP-Mac
+          archive: false
           path: source/TinyFTP/dist/TinyFTP-macOS-arm64.zip
           if-no-files-found: error
           retention-days: 7
