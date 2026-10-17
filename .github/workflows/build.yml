@@ -2,7 +2,7 @@ name: Build Tiny FTP
 
 on:
   push:
-    branches: [main]
+    branches: [main, "codex/**"]
   workflow_dispatch:
 
 permissions:
@@ -12,6 +12,8 @@ jobs:
   build:
     runs-on: macos-15
     timeout-minutes: 20
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v6
       - name: Extract source
@@ -25,9 +27,29 @@ jobs:
       - name: Package application
         working-directory: source/TinyFTP
         run: ditto -c -k --sequesterRsrc --keepParent "dist/Tiny FTP.app" dist/TinyFTP-macOS-arm64.zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
-          name: TinyFTP-Mac
+          archive: false
           path: source/TinyFTP/dist/TinyFTP-macOS-arm64.zip
           if-no-files-found: error
           retention-days: 7
+      - name: Publish versioned release
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' source/TinyFTP/Info.plist)
+          TAG="v${VERSION}"
+          if gh release view "${TAG}" --json tagName >/dev/null 2>&1; then
+            echo "Release ${TAG} already exists; preserving published assets."
+            exit 0
+          fi
+          cp source/TinyFTP/dist/TinyFTP-macOS-arm64.zip ./TinyFTP-macOS-arm64.zip
+          shasum -a 256 TinyFTP-macOS-arm64.zip TinyFTP-source.zip > SHA256SUMS.txt
+          gh release create "${TAG}" \
+            TinyFTP-macOS-arm64.zip TinyFTP-source.zip SHA256SUMS.txt \
+            --target "${GITHUB_SHA}" --title "Tiny FTP ${VERSION}" \
+            --notes-file RELEASE_NOTES.md --latest
