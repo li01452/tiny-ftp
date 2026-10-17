@@ -1,0 +1,33 @@
+name: Build Tiny FTP
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - name: Extract source
+        run: unzip -q TinyFTP-source.zip -d source
+      - name: Run tests
+        working-directory: source/TinyFTP
+        run: python3 verification/ftp_smoke.py --swift
+      - name: Build application
+        working-directory: source/TinyFTP
+        run: bash build.command
+      - name: Package application
+        working-directory: source/TinyFTP
+        run: ditto -c -k --sequesterRsrc --keepParent "dist/Tiny FTP.app" dist/TinyFTP-macOS-arm64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TinyFTP-Mac
+          path: source/TinyFTP/dist/TinyFTP-macOS-arm64.zip
+          if-no-files-found: error
+          retention-days: 7
