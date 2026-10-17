@@ -23,7 +23,6 @@ Tiny FTP 用来在 Mac 和局域网内的手机之间传文件。打开手机文
 | --- | --- |
 | 系统 | macOS 13 或更高版本 |
 | 芯片 | Apple Silicon，包括 M1、M2、M3、M4 等 |
-| 已测试环境 | MacBook M1，macOS 15.8 |
 | 应用体积 | 约 0.5 MB；下载 ZIP 约 255 KB（v1.1.1） |
 | 默认地址 | `ftp://192.168.31.6:2121`，可修改 |
 | 认证与编码 | 匿名 FTP、UTF-8 |
@@ -91,4 +90,4 @@ v1.1.1 已通过 macOS arm64 云端构建、10 项 Swift 测试和 8 项 FTP 检
 
 ## 反馈
 
-如遇到连接、文件名或传输问题，可以在 [Issues](https://github.com/li01452/tiny-ftp/issues) 中提供 macOS 版本、手机 FTP 服务来源和完整报错。
+有啥问题，找你的agent，修改一下就可以了。
